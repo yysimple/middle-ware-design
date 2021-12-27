@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "simple.whitelist",
+      "type": "com.simple.whitelist.config.WhiteListProperties",
+      "sourceType": "com.simple.whitelist.config.WhiteListProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "simple.whitelist.users",
+      "type": "java.lang.String",
+      "sourceType": "com.simple.whitelist.config.WhiteListProperties"
+    }
+  ],
+  "hints": []
+}
