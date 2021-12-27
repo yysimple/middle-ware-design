@@ -16,7 +16,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * 功能描述: 处理熔断的切面类
+ * 功能描述: 处理熔断的切面类,这个类的话，需要放在与使用该类的那个应用的SpringBoot启动类的包扫描下
+ * 所以这里最好还是使用SPI机制，放在spring.factories文件里配置这个类
+ * org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.simple.hystrix.DoHystrixPoint
  *
  * @author: WuChengXing
  * @create: 2021-12-27 17:52
