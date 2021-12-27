@@ -43,7 +43,7 @@ public class DoJoinPoint {
         // 拿到方法上面的注解
         DoWhiteList whiteList = method.getAnnotation(DoWhiteList.class);
 
-        // 获取参数值
+        // 获取参数值以及需要校验的key，可以自己指定某个参数
         String keyValue = getFiledValue(whiteList.key(), jp.getArgs());
         logger.info("middleware whitelist handler method：{} value：{}", method.getName(), keyValue);
         // 参数为空不拦截，因为也拿不到数据，没必要拦截
@@ -102,6 +102,7 @@ public class DoJoinPoint {
         for (Object arg : args) {
             try {
                 if (null == filedValue || "".equals(filedValue)) {
+                    // 获取传进来对应”key“字段的值
                     filedValue = BeanUtils.getProperty(arg, filed);
                 } else {
                     break;
