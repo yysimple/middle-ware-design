@@ -22,15 +22,18 @@ public class AgentMain {
      * @param inst
      */
     public static void premain(String agentArgs, Instrumentation inst) {
+        System.out.println("-------- agent start weave --------");
         AgentBuilder.Transformer transformer = (builder, typeDescription, classLoader, javaModule) -> builder
-                // 拦截任意方法
+                // 拦截任意方法，这里是拦截对应的方法，这里是精确到方法，这里跟下面可以配合，这里也可以选择 any 如注释的代码
                 .method(ElementMatchers.named("executeInternal"))
+                // .method(ElementMatchers.any())
                 // 委托
                 .intercept(MethodDelegation.to(SqlMonitorMethod.class));
 
         new AgentBuilder
                 .Default()
-                .type(ElementMatchers.nameStartsWith("com.mysql.jdbc.PreparedStatement"))
+                // 这里的话可以精确到类，也可以指定包名；如果 这里指定com.mysql，上面指定是 any();那么agent则会扫码 com.mysql下所有类的所有方法进行织入
+                .type(ElementMatchers.nameStartsWith("com.mysql.cj.jdbc.ClientPreparedStatement"))
                 .transform(transformer)
                 .installOn(inst);
     }

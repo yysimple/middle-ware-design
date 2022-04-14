@@ -1,0 +1,30 @@
+{
+  "groups": [
+    {
+      "name": "rpc.register",
+      "type": "com.simple.rpc.config.ServerProperties",
+      "sourceType": "com.simple.rpc.config.ServerProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "rpc.register.host",
+      "type": "java.lang.String",
+      "description": "注册中心地址",
+      "sourceType": "com.simple.rpc.config.ServerProperties"
+    },
+    {
+      "name": "rpc.register.password",
+      "type": "java.lang.String",
+      "description": "注册中心密码",
+      "sourceType": "com.simple.rpc.config.ServerProperties"
+    },
+    {
+      "name": "rpc.register.port",
+      "type": "java.lang.Integer",
+      "description": "注册中心端口",
+      "sourceType": "com.simple.rpc.config.ServerProperties"
+    }
+  ],
+  "hints": []
+}

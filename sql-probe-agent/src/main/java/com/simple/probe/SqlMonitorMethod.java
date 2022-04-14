@@ -5,6 +5,7 @@ import cn.hutool.core.util.ReflectUtil;
 import net.bytebuddy.implementation.bind.annotation.*;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Callable;
 
@@ -24,14 +25,13 @@ public class SqlMonitorMethod {
             return callable.call();
         } finally {
 
-            String originalSql = (String) BeanUtil.getFieldValue(obj, "originalSql");
             String replaceSql = ReflectUtil.invoke(obj, "asSql");
-
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             System.out.println("数据库名称：Mysql");
             System.out.println("线程ID：" + Thread.currentThread().getId());
-            System.out.println("时间：" + new Date());
-            System.out.println("原始SQL：\r\n" + originalSql);
-            System.out.println("替换SQL：\r\n" + replaceSql);
+            System.out.println("时间：" + simpleDateFormat.format(new Date()));
+            System.out.println("可执行的SQL：\r\n" + replaceSql);
+            System.out.println("-------- agent finish weave --------");
         }
     }
 }
