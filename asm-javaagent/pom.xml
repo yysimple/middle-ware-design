@@ -50,7 +50,7 @@
     </dependencies>
 
     <build>
-        <finalName>asmAgent</finalName>
+        <finalName>AsmAgent</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>

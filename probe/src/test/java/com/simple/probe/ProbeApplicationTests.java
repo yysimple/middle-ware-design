@@ -34,4 +34,9 @@ class ProbeApplicationTests {
             System.out.println(rs.getString("name") + " " + rs.getString("create_time"));
         }
     }
+
+    @Test
+    public void testAgent(){
+        System.out.println("=== 我是测试方法 ===");
+    }
 }
