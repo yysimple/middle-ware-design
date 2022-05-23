@@ -5,7 +5,6 @@ import com.netflix.hystrix.*;
 import com.simple.hystrix.annotation.DoHystrix;
 import com.simple.hystrix.value.IValueService;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
 

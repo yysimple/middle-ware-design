@@ -1,6 +1,5 @@
 package com.simple.probe;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
 import net.bytebuddy.implementation.bind.annotation.*;
 

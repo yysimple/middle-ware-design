@@ -1,7 +1,7 @@
 package com.simple.rpc.annotation;
 
-import com.simple.rpc.config.ServerProperties;
 import com.simple.rpc.config.ServerAutoConfiguration;
+import com.simple.rpc.config.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
