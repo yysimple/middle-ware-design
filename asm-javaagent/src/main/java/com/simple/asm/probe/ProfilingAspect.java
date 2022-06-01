@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.logging.Logger;
 
 /**
  * 功能描述: 增强切面，用来做监控逻辑
@@ -22,6 +23,7 @@ public class ProfilingAspect {
     private final static AtomicInteger INDEX = new AtomicInteger(0);
     private final static AtomicReferenceArray<MethodTag> METHOD_TAG_ARR = new AtomicReferenceArray<>(MAX_NUM);
     private final static Map<Integer, List<String>> METHOD_PARAMETER_GROUP = new ConcurrentHashMap<>();
+    private static Logger log = Logger.getLogger(ProfilingAspect.class.toString());
 
     /**
      * 通过原子类生成方法ID
@@ -58,11 +60,12 @@ public class ProfilingAspect {
      * @param response
      */
     public static void point(final long startNanos, final int methodId, Object[] requests, Object response) {
+        log.info("=== 正常的返回值监控 ===");
         MethodTag method = METHOD_TAG_ARR.get(methodId);
         List<String> parameters = METHOD_PARAMETER_GROUP.get(methodId);
         System.out.println("监控 - Begin");
         System.out.println("方法：" + method.getFullClassName() + "." + method.getMethodName());
-        System.out.println("入参：" + JSON.toJSONString(parameters) + " 入参类型：" + JSON.toJSONString(method.getParameterTypeList()) + " 入数[值]：" + JSON.toJSONString(requests));
+        System.out.println("入参：" + JSON.toJSONString(parameters) + " 入参类型：" + JSON.toJSONString(method.getParameterTypeList()) + " 入参[值]：" + JSON.toJSONString(requests));
         System.out.println("出参：" + method.getReturnParameterType() + " 出参[值]：" + JSON.toJSONString(response));
         System.out.println("耗时：" + (System.nanoTime() - startNanos) / 1000000 + "(s)");
         System.out.println("监控 - End\r\n");
@@ -77,6 +80,7 @@ public class ProfilingAspect {
      * @param throwable
      */
     public static void point(final long startNanos, final int methodId, Object[] requests, Throwable throwable) {
+        log.info("=== 异常信息监控 ===");
         MethodTag method = METHOD_TAG_ARR.get(methodId);
         List<String> parameters = METHOD_PARAMETER_GROUP.get(methodId);
         System.out.println("监控 - Begin");
@@ -95,6 +99,7 @@ public class ProfilingAspect {
      * @param requests
      */
     public static void point(final long startNanos, final int methodId, Object[] requests) {
+        log.info("=== 无返回值监控 ===");
         MethodTag method = METHOD_TAG_ARR.get(methodId);
         List<String> parameters = METHOD_PARAMETER_GROUP.get(methodId);
         System.out.println("监控 - Begin");

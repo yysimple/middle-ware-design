@@ -12,6 +12,7 @@ public class AgentTest {
 
     public String queryUserInfo(String uid, String token) throws InterruptedException {
         Thread.sleep(new Random().nextInt(500));
+        Thread.sleep(1000);
         return "*** 我是要代理的方法的返回值 ***";
     }
 
