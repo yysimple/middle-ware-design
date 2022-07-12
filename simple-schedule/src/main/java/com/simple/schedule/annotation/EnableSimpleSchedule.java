@@ -1,5 +1,9 @@
 package com.simple.schedule.annotation;
 
+import com.simple.schedule.DoJoinPoint;
+import com.simple.schedule.config.SchedulingConfiguration;
+import com.simple.schedule.task.CronTaskRegister;
+import com.simple.schedule.task.SchedulingConfig;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -19,7 +23,7 @@ import java.lang.annotation.Target;
  **/
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Import({DcsSchedulingConfiguration.class})
+@Import({SchedulingConfiguration.class})
 @ImportAutoConfiguration({SchedulingConfig.class, CronTaskRegister.class, DoJoinPoint.class})
 @ComponentScan("com.simple.schedule.*")
 public @interface EnableSimpleSchedule {
