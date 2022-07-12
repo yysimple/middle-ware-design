@@ -1,5 +1,7 @@
 package com.simple.schedule.common;
 
+import com.simple.schedule.domain.ExecuteInstance;
+import com.simple.schedule.task.ScheduledTask;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.context.ApplicationContext;
 
@@ -15,11 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author: WuChengXing
  * @create: 2022-07-10 13:37
  **/
-public class JobConstants {
+public class Constants {
 
-    //任务组；beanName->ExecOrder
-    public static final Map<String, List<ExecOrder>> exec_Order_Map = new ConcurrentHashMap<>();
-    public static final Map<String, ScheduledTask> scheduled_Tasks = new ConcurrentHashMap<>(16);
+    /**
+     * 任务组；beanName->ExecuteInstance
+     */
+    public static final Map<String, List<ExecuteInstance>> EXECUTE_INSTANCE = new ConcurrentHashMap<>();
+    public static final Map<String, ScheduledTask> SCHEDULED_TASKS = new ConcurrentHashMap<>(16);
 
     public static class Global {
         public static ApplicationContext applicationContext;
@@ -31,7 +35,7 @@ public class JobConstants {
         public static String schedulerServerId;     //任务服务ID；  工程名称En
         public static String schedulerServerName;   //任务服务名称；工程名称Ch
         public static CuratorFramework client;      //zk配置；client
-        public static String path_root = "/cn/bugstack/middleware/schedule";   //zk配置；根目录
+        public static String path_root = "/com/simple/schedule";   //zk配置；根目录
         public static String path_root_exec = path_root + "/exec";
         public static String path_root_server;
         public static String path_root_server_ip;
@@ -41,8 +45,8 @@ public class JobConstants {
     }
 
     public static class InstructStatus{
-        public final static Integer stop = 0;     //停止
-        public final static Integer Start = 1;    //启动
-        public final static Integer Refresh = 2;  //刷新
+        public final static Integer STOP = 0;     //停止
+        public final static Integer START = 1;    //启动
+        public final static Integer REFRESH = 2;  //刷新
     }
 }

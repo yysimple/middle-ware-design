@@ -1,6 +1,8 @@
 package com.simple.schedule.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 项目: whitelist-spring-boot-starter
@@ -11,6 +13,8 @@ import lombok.Data;
  * @create: 2022-07-10 13:47
  **/
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ScheduleServerNode {
 
     /**
