@@ -42,7 +42,7 @@ public class SchedulingConfiguration implements ApplicationContextAware, BeanPos
 
     private Logger logger = LoggerFactory.getLogger(SchedulingConfiguration.class);
 
-    private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
+    private final Set<Class<?>> alreadyDealClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -52,16 +52,21 @@ public class SchedulingConfiguration implements ApplicationContextAware, BeanPos
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
-        if (this.nonAnnotatedClasses.contains(targetClass)) {
+        // 过滤已经被处理了bean
+        if (this.alreadyDealClasses.contains(targetClass)) {
             return bean;
         }
+        // 拿到所有的method
         Method[] methods = ReflectionUtils.getAllDeclaredMethods(bean.getClass());
         for (Method method : methods) {
+            // 拿到对应的注解信息
             SimpleSchedule dcsScheduled = AnnotationUtils.findAnnotation(method, SimpleSchedule.class);
+            // 在扫描的过程中，一个方法会得到两次，因为有一个CGLIB给代理的。所以需要使用 method.getDeclaredAnnotations() 判断一下
             if (null == dcsScheduled || 0 == method.getDeclaredAnnotations().length) {
                 continue;
             }
             List<ExecuteInstance> execOrderList = Constants.EXECUTE_INSTANCE.computeIfAbsent(beanName, k -> new ArrayList<>());
+            // 构建执行实例
             ExecuteInstance execOrder = new ExecuteInstance();
             execOrder.setBean(bean);
             execOrder.setBeanName(beanName);
@@ -70,7 +75,7 @@ public class SchedulingConfiguration implements ApplicationContextAware, BeanPos
             execOrder.setCron(dcsScheduled.cron());
             execOrder.setAutoStartup(dcsScheduled.autoStartup());
             execOrderList.add(execOrder);
-            this.nonAnnotatedClasses.add(targetClass);
+            this.alreadyDealClasses.add(targetClass);
         }
         return bean;
     }
