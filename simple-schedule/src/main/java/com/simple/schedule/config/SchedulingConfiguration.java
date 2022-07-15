@@ -74,6 +74,7 @@ public class SchedulingConfiguration implements ApplicationContextAware, BeanPos
             execOrder.setDesc(dcsScheduled.desc());
             execOrder.setCron(dcsScheduled.cron());
             execOrder.setAutoStartup(dcsScheduled.autoStartup());
+            // 这里会将所有要执行的任务实例存起来
             execOrderList.add(execOrder);
             this.alreadyDealClasses.add(targetClass);
         }
@@ -159,10 +160,12 @@ public class SchedulingConfiguration implements ApplicationContextAware, BeanPos
         for (String beanName : beanNames) {
             List<ExecuteInstance> execOrderList = Constants.EXECUTE_INSTANCE.get(beanName);
             for (ExecuteInstance execOrder : execOrderList) {
+                // 判断注解上面的任务状态是否是已启动
                 if (!execOrder.getAutoStartup()) {
                     continue;
                 }
                 SchedulingRunnable task = new SchedulingRunnable(execOrder.getBean(), execOrder.getBeanName(), execOrder.getMethodName());
+                // 将定时任务注册到任务池里面
                 cronTaskRegistrar.addCronTask(task, execOrder.getCron());
             }
         }

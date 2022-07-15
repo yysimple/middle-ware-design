@@ -77,14 +77,16 @@ public class HeartbeatService {
                         }
                         oldExecOrder.setAutoStartup(!cancelled);
                         //临时节点[数据]
-                        if (null == Constants.Global.client.checkExists().forPath(path_root_server_ip_clazz_method))
+                        if (null == Constants.Global.client.checkExists().forPath(path_root_server_ip_clazz_method)) {
                             continue;
+                        }
                         String newJson = JSON.toJSONString(oldExecOrder);
                         Constants.Global.client.setData().forPath(path_root_server_ip_clazz_method, newJson.getBytes(Constants.Global.CHARSET_NAME));
                         //永久节点[数据]
                         String path_root_ip_server_clazz_method_status = StrUtil.joinStr(path_root_server_ip_clazz, Constants.Global.LINE, "method", Constants.Global.LINE, execOrder.getMethodName(), "/status");
-                        if (null == Constants.Global.client.checkExists().forPath(path_root_ip_server_clazz_method_status))
+                        if (null == Constants.Global.client.checkExists().forPath(path_root_ip_server_clazz_method_status)) {
                             continue;
+                        }
                         Constants.Global.client.setData().forPath(path_root_ip_server_clazz_method_status, (execOrder.getAutoStartup() ? "1" : "0").getBytes(Constants.Global.CHARSET_NAME));
                     }
                 }

@@ -21,7 +21,7 @@ import static com.simple.schedule.common.Constants.Global.path_root;
 /**
  * 项目: whitelist-spring-boot-starter
  * <p>
- * 功能描述:
+ * 功能描述: 操作zk的工具类
  *
  * @author: WuChengXing
  * @create: 2022-07-12 16:04
