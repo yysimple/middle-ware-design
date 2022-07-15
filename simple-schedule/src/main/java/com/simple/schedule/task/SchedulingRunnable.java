@@ -14,24 +14,24 @@ import java.lang.reflect.Method;
  * @author: WuChengXing
  * @create: 2022-07-12 15:49
  **/
-public class SchedulingRunnable implements Runnable{
+public class SchedulingRunnable implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(SchedulingRunnable.class);
 
     /**
      * 类对象
      */
-    private Object bean;
+    private final Object bean;
 
     /**
      * 类名称
      */
-    private String beanName;
+    private final String beanName;
 
     /**
      * 方法名称
      */
-    private String methodName;
+    private final String methodName;
 
     public SchedulingRunnable(Object bean, String beanName, String methodName) {
         this.bean = bean;
@@ -39,6 +39,9 @@ public class SchedulingRunnable implements Runnable{
         this.methodName = methodName;
     }
 
+    /**
+     * 通过反射进行具体方法调用
+     */
     @Override
     public void run() {
         try {

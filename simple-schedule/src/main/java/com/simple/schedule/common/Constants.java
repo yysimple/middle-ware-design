@@ -28,6 +28,8 @@ public class Constants {
     public static class Global {
         public static ApplicationContext applicationContext;
         public static final String LINE = "/";
+        public static final String LEFT_PARENTHESIS = "{";
+        public static final String RIGHT_PARENTHESIS = "}";
         public static String CHARSET_NAME = "utf-8";
         public static int schedulePoolSize = 8;     //定时任务执行线程池核心线程数
         public static String ip;                    //本机IP

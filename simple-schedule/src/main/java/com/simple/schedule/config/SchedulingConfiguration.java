@@ -126,17 +126,21 @@ public class SchedulingConfiguration implements ApplicationContextAware, BeanPos
      */
     private void initServer(ApplicationContext applicationContext) {
         try {
-            //获取zk连接
+            // 获取zk连接
             CuratorFramework client = ZkCuratorServer.getClient(Constants.Global.zkAddress);
-            //节点组装
+            // 节点组装，假设schedulerServerId = a-service-001；那么最后数据：/com/simple/schedule/server/a-service-001
             Constants.Global.path_root_server = StrUtil.joinStr(Constants.Global.path_root, Constants.Global.LINE, "server", Constants.Global.LINE, Constants.Global.schedulerServerId);
+            // 这里加上ip /com/simple/schedule/server/a-service-001/ip/127.0.0.1
             Constants.Global.path_root_server_ip = StrUtil.joinStr(Constants.Global.path_root_server, Constants.Global.LINE, "ip", Constants.Global.LINE, Constants.Global.ip);
-            //创建节点&递归删除本服务IP下的旧内容
+            // 创建节点&递归删除本服务IP下的旧内容
             ZkCuratorServer.deletingChildrenIfNeeded(client, Constants.Global.path_root_server_ip);
+            // 创建新的节点
             ZkCuratorServer.createNode(client, Constants.Global.path_root_server_ip);
+            // 在对应的/com/simple/schedule/server/a-service-001节点下面插入服务名称
             ZkCuratorServer.setData(client, Constants.Global.path_root_server, Constants.Global.schedulerServerName);
-            //添加节点&监听
+            // 添加节点&监听 /com/simple/schedule/exec
             ZkCuratorServer.createNodeSimple(client, Constants.Global.path_root_exec);
+            // 监听执行节点
             ZkCuratorServer.addTreeCacheListener(applicationContext, client, Constants.Global.path_root_exec);
         } catch (Exception e) {
             logger.error("simple schedule init server error！", e);

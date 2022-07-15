@@ -70,6 +70,7 @@ public class ZkCuratorServer {
     public static void addTreeCacheListener(final ApplicationContext applicationContext, final CuratorFramework client, String path) throws Exception {
         TreeCache treeCache = new TreeCache(client, path);
         treeCache.start();
+        // 根据某个目录为根目录，然后拿到对应的缓存树，并进行监听
         treeCache.getListenable().addListener((curatorFramework, event) -> {
             if (null == event.getData()) {
                 return;
@@ -79,22 +80,27 @@ public class ZkCuratorServer {
                 return;
             }
             String json = new String(eventData, Constants.Global.CHARSET_NAME);
-            if ("".equals(json) || json.indexOf("{") != 0 || json.lastIndexOf("}") + 1 != json.length()) {
+            // 判断是否是正常的对象数据
+            if ("".equals(json) || json.indexOf(Constants.Global.LEFT_PARENTHESIS) != 0 || json.lastIndexOf(Constants.Global.RIGHT_PARENTHESIS) + 1 != json.length()) {
                 return;
             }
-            ScheduleInstruct instruct = JSON.parseObject(new String(event.getData().getData(), Constants.Global.CHARSET_NAME), ScheduleInstruct.class);
+            // 解析出指令
+            ScheduleInstruct instruct = JSON.parseObject(json, ScheduleInstruct.class);
+            // 根据不同的事件类型做判断
             switch (event.getType()) {
                 case NODE_ADDED:
                 case NODE_UPDATED:
+                    // 根据初始化时候的ip和应用名，做自己应用的执行逻辑，防止操作其他应用数据
                     if (Constants.Global.ip.equals(instruct.getIp()) && Constants.Global.schedulerServerId.equals(instruct.getSchedulerServerId())) {
-                        //获取对象
+                        // 获取cron任务执行对象
                         CronTaskRegister cronTaskRegistrar = applicationContext.getBean("com-simple-schedule-cronTaskRegister", CronTaskRegister.class);
                         boolean isExist = applicationContext.containsBean(instruct.getBeanName());
                         if (!isExist) {
                             return;
                         }
                         Object scheduleBean = applicationContext.getBean(instruct.getBeanName());
-                        String path_root_server_ip_clazz_method_status = StrUtil.joinStr(Constants.Global.path_root, Constants.Global.LINE, "server",
+                        // 拼接后的路径：/com/simple/schedule/server/a-service-001/ip/127.0.0.1/clazz/AService/method/aSchedule/status
+                        String pathRootServerIpClazzMethodStatus = StrUtil.joinStr(Constants.Global.path_root, Constants.Global.LINE, "server",
                                 Constants.Global.LINE, instruct.getSchedulerServerId(),
                                 Constants.Global.LINE, "ip",
                                 Constants.Global.LINE, instruct.getIp(),
@@ -102,29 +108,30 @@ public class ZkCuratorServer {
                                 Constants.Global.LINE, instruct.getBeanName(),
                                 Constants.Global.LINE, "method",
                                 Constants.Global.LINE, instruct.getMethodName(), "/status");
-                        //执行命令
+                        // 拿到状态
                         Integer status = instruct.getStatus();
                         switch (status) {
                             case 0:
+                                // 从项目组里面移除该定时任务
                                 cronTaskRegistrar.removeCronTask(instruct.getBeanName() + "_" + instruct.getMethodName());
-                                setData(client, path_root_server_ip_clazz_method_status, "0");
+                                setData(client, pathRootServerIpClazzMethodStatus, "0");
                                 logger.info("simple schedule task stop {} {}", instruct.getBeanName(), instruct.getMethodName());
                                 break;
                             case 1:
                                 cronTaskRegistrar.addCronTask(new SchedulingRunnable(scheduleBean, instruct.getBeanName(), instruct.getMethodName()), instruct.getCron());
-                                setData(client, path_root_server_ip_clazz_method_status, "1");
+                                setData(client, pathRootServerIpClazzMethodStatus, "1");
                                 logger.info("simple schedule task start {} {}", instruct.getBeanName(), instruct.getMethodName());
                                 break;
                             case 2:
                                 cronTaskRegistrar.removeCronTask(instruct.getBeanName() + "_" + instruct.getMethodName());
                                 cronTaskRegistrar.addCronTask(new SchedulingRunnable(scheduleBean, instruct.getBeanName(), instruct.getMethodName()), instruct.getCron());
-                                setData(client, path_root_server_ip_clazz_method_status, "1");
+                                setData(client, pathRootServerIpClazzMethodStatus, "1");
                                 logger.info("simple schedule task refresh {} {}", instruct.getBeanName(), instruct.getMethodName());
+                                break;
+                            default:
                                 break;
                         }
                     }
-                    break;
-                case NODE_REMOVED:
                     break;
                 default:
                     break;
@@ -189,7 +196,9 @@ public class ZkCuratorServer {
      * @throws Exception
      */
     public static void setData(CuratorFramework client, String path, String data) throws Exception {
-        if (null == client.checkExists().forPath(path)) return;
+        if (null == client.checkExists().forPath(path)) {
+            return;
+        }
         client.setData().forPath(path, data.getBytes(Constants.Global.CHARSET_NAME));
     }
 
@@ -232,6 +241,13 @@ public class ZkCuratorServer {
         node.waitForInitialCreate(3, TimeUnit.SECONDS);
     }
 
+    /**
+     * 删除某个目录下所有的节点
+     *
+     * @param client
+     * @param path
+     * @throws Exception
+     */
     public static void deletingChildrenIfNeeded(CuratorFramework client, String path) throws Exception {
         if (null == client.checkExists().forPath(path)) {
             return;

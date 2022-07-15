@@ -26,10 +26,17 @@ public class CronTaskRegister implements DisposableBean {
         return this.taskScheduler;
     }
 
+    /**
+     * 新增任务
+     *
+     * @param task
+     * @param cronExpression
+     */
     public void addCronTask(SchedulingRunnable task, String cronExpression) {
         if (null != Constants.SCHEDULED_TASKS.get(task.taskId())) {
             removeCronTask(task.taskId());
         }
+        // 构建需要执行的任务，和任务对应的cron表达式
         CronTask cronTask = new CronTask(task, cronExpression);
         Constants.SCHEDULED_TASKS.put(task.taskId(), scheduleCronTask(cronTask));
     }
@@ -44,6 +51,7 @@ public class CronTaskRegister implements DisposableBean {
 
     private ScheduledTask scheduleCronTask(CronTask cronTask) {
         ScheduledTask scheduledTask = new ScheduledTask();
+        // 使用spring提供的定时任务，然后拿到对应的future
         scheduledTask.future = this.taskScheduler.schedule(cronTask.getRunnable(), cronTask.getTrigger());
         return scheduledTask;
     }
