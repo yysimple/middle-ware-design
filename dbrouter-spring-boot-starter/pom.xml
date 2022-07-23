@@ -6,7 +6,7 @@
 
     <groupId>com.simple.dbrouter</groupId>
     <artifactId>dbrouter-spring-boot-starter</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -50,6 +50,7 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.34</version>
+            <optional>true</optional>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-test -->
         <dependency>
