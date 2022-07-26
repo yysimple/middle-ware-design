@@ -3,9 +3,11 @@ package com.simple.dbrouter.config;
 import com.simple.dbrouter.DbRouterConfig;
 import com.simple.dbrouter.DbRouterJoinPoint;
 import com.simple.dbrouter.dynamic.DynamicDataSource;
+import com.simple.dbrouter.dynamic.DynamicMybatisPlugin;
 import com.simple.dbrouter.strategy.DbRouterStrategy;
 import com.simple.dbrouter.strategy.impl.DbHashStrategy;
 import com.simple.dbrouter.util.PropertyUtil;
+import org.apache.ibatis.plugin.Interceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -65,6 +67,11 @@ public class DataSourceAutoConfig implements EnvironmentAware {
     }
 
     @Bean
+    public Interceptor plugin() {
+        return new DynamicMybatisPlugin();
+    }
+
+    @Bean
     public DbRouterConfig dbRouterConfig() {
         return new DbRouterConfig(dbCount, tbCount, routerKey);
     }
@@ -118,6 +125,7 @@ public class DataSourceAutoConfig implements EnvironmentAware {
         // router.jdbc.datasource.dbCount 为key， 2为值的方式存储
         dbCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty(prefix + "dbCount")));
         tbCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty(prefix + "tbCount")));
+        routerKey = environment.getProperty(prefix + "routerKey");
 
         if ((dbCount * tbCount) % 2 != 0) {
             logger.error("请将您的数据库数（dbCount）* 表数量（tbCount）设置为2的倍数，否则有意外错误！！");
