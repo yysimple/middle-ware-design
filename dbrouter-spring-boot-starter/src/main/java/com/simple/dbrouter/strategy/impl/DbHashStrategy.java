@@ -37,8 +37,8 @@ public class DbHashStrategy implements DbRouterStrategy {
         // 这里表索引就是 7 -（0 ~ 4） = （3 ~ 7） % 4 + 1 = （1 ~ 4）
         int tbIdx = (idx - dbRouterConfig.getTbCount() * (dbIdx - 1)) % dbRouterConfig.getTbCount() + 1;
         // 设置到 ThreadLocal,这里就是将 1，2 这样的 设置成 01 02 ，所以在配置文件中，我们需要注意我们的设置要以 01 这样的结尾或者开头
-        DbContextHolder.setDBKey(String.format("%02d", dbIdx));
-        DbContextHolder.setTBKey(String.format("%02d", tbIdx));
+        DbContextHolder.setDBKey(String.format("%03d", dbIdx));
+        DbContextHolder.setTBKey(String.format("%03d", tbIdx));
         logger.info("数据库路由 dbIdx：{} tbIdx：{}", dbIdx, tbIdx);
     }
 
