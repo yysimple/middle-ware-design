@@ -6,7 +6,7 @@ package com.simple.dbrouter;
  * @author: WuChengXing
  * @create: 2021-12-30 10:18
  **/
-public class DBRouterConfig {
+public class DbRouterConfig {
 
     /**
      * 分库数
@@ -18,12 +18,18 @@ public class DBRouterConfig {
      */
     private int tbCount;
 
-    public DBRouterConfig() {
+    /**
+     * 路由字段
+     */
+    private String routerKey;
+
+    public DbRouterConfig() {
     }
 
-    public DBRouterConfig(int dbCount, int tbCount) {
+    public DbRouterConfig(int dbCount, int tbCount, String routerKey) {
         this.dbCount = dbCount;
         this.tbCount = tbCount;
+        this.routerKey = routerKey;
     }
 
     public int getDbCount() {
@@ -40,5 +46,13 @@ public class DBRouterConfig {
 
     public void setTbCount(int tbCount) {
         this.tbCount = tbCount;
+    }
+
+    public String getRouterKey() {
+        return routerKey;
+    }
+
+    public void setRouterKey(String routerKey) {
+        this.routerKey = routerKey;
     }
 }

@@ -6,12 +6,12 @@ package com.simple.dbrouter;
  * @author: WuChengXing
  * @create: 2021-12-30 10:17
  **/
-public class DBRouterBase {
+public class DbRouterBase {
 
     private String tbIdx;
 
     public String getTbIdx() {
-        return DBContextHolder.getTBKey();
+        return DbContextHolder.getTBKey();
     }
 
 }

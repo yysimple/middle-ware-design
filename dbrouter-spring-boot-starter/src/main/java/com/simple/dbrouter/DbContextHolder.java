@@ -6,7 +6,7 @@ package com.simple.dbrouter;
  * @author: WuChengXing
  * @create: 2021-12-30 10:16
  **/
-public class DBContextHolder {
+public class DbContextHolder {
 
     private static final ThreadLocal<String> dbKey = new ThreadLocal<>();
     private static final ThreadLocal<String> tbKey = new ThreadLocal<>();

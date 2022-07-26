@@ -1,14 +1,21 @@
 package com.simple.dbrouter.config;
 
-import com.simple.dbrouter.DBRouterConfig;
+import com.simple.dbrouter.DbRouterConfig;
+import com.simple.dbrouter.DbRouterJoinPoint;
 import com.simple.dbrouter.dynamic.DynamicDataSource;
+import com.simple.dbrouter.strategy.DbRouterStrategy;
+import com.simple.dbrouter.strategy.impl.DbHashStrategy;
 import com.simple.dbrouter.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -21,11 +28,20 @@ import java.util.Objects;
  * @author: WuChengXing
  * @create: 2021-12-30 10:27
  **/
+@Configuration
 public class DataSourceAutoConfig implements EnvironmentAware {
 
     Logger logger = LoggerFactory.getLogger(DataSourceAutoConfig.class);
 
+    /**
+     * 数据源配置组
+     */
     private Map<String, Map<String, Object>> dataSourceMap = new HashMap<>(4);
+
+    /**
+     * 默认数据源配置
+     */
+    private Map<String, Object> defaultDataSourceConfig;
 
     /**
      * 分库数
@@ -37,9 +53,20 @@ public class DataSourceAutoConfig implements EnvironmentAware {
      */
     private int tbCount;
 
+    /**
+     * 路由字段
+     */
+    private String routerKey;
+
+    @Bean(name = "db-router-point")
+    @ConditionalOnMissingBean
+    public DbRouterJoinPoint point(DbRouterConfig dbRouterConfig, DbRouterStrategy dbRouterStrategy) {
+        return new DbRouterJoinPoint(dbRouterConfig, dbRouterStrategy);
+    }
+
     @Bean
-    public DBRouterConfig dbRouterConfig() {
-        return new DBRouterConfig(dbCount, tbCount);
+    public DbRouterConfig dbRouterConfig() {
+        return new DbRouterConfig(dbCount, tbCount, routerKey);
     }
 
     @Bean
@@ -54,7 +81,26 @@ public class DataSourceAutoConfig implements EnvironmentAware {
         // 动态设置多数据源
         DynamicDataSource dynamicDataSource = new DynamicDataSource();
         dynamicDataSource.setTargetDataSources(targetDataSources);
+        dynamicDataSource.setDefaultTargetDataSource(new DriverManagerDataSource(defaultDataSourceConfig.get("url").toString(),
+                defaultDataSourceConfig.get("username").toString(),
+                defaultDataSourceConfig.get("password").toString()));
         return dynamicDataSource;
+    }
+
+    @Bean
+    public DbRouterStrategy dbRouterStrategy(DbRouterConfig dbRouterConfig) {
+        return new DbHashStrategy(dbRouterConfig);
+    }
+
+    @Bean
+    public TransactionTemplate transactionTemplate(DataSource dataSource) {
+        DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
+        dataSourceTransactionManager.setDataSource(dataSource);
+
+        TransactionTemplate transactionTemplate = new TransactionTemplate();
+        transactionTemplate.setTransactionManager(dataSourceTransactionManager);
+        transactionTemplate.setPropagationBehaviorName("PROPAGATION_REQUIRED");
+        return transactionTemplate;
     }
 
     @Override
@@ -84,5 +130,9 @@ public class DataSourceAutoConfig implements EnvironmentAware {
             Map<String, Object> dataSourceProps = PropertyUtil.handle(environment, prefix + dbInfo, Map.class);
             dataSourceMap.put(dbInfo, dataSourceProps);
         }
+
+        // 默认数据源
+        String defaultData = environment.getProperty(prefix + "default");
+        defaultDataSourceConfig = PropertyUtil.handle(environment, prefix + defaultData, Map.class);
     }
 }

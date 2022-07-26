@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.simple.dbrouter.config.DataSourceAutoConfig,\
-  com.simple.dbrouter.DBRouterJoinPoint
+  com.simple.dbrouter.DbRouterJoinPoint
