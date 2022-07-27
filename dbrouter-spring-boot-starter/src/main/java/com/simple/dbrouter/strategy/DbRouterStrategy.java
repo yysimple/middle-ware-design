@@ -1,5 +1,7 @@
 package com.simple.dbrouter.strategy;
 
+import java.util.Objects;
+
 /**
  * 项目: whitelist-spring-boot-starter
  * <p>
@@ -15,7 +17,7 @@ public interface DbRouterStrategy {
      *
      * @param dbKeyAttr 路由字段
      */
-    void doRouter(String dbKeyAttr);
+    void doRouter(Object dbKeyAttr);
 
     /**
      * 手动设置分库路由

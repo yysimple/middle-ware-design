@@ -15,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * 功能描述: 切面
@@ -51,7 +53,7 @@ public class DbRouterJoinPoint {
         }
         dbKey = StringUtils.isNotBlank(dbKey) ? dbKey : dbRouterConfig.getRouterKey();
         // 计算路由
-        String dbKeyAttr = getAttrValue(dbKey, jp.getArgs());
+        Object dbKeyAttr = getAttrValue(dbKey, jp.getArgs());
         dbRouterStrategy.doRouter(dbKeyAttr);
         // 返回结果
         try {
@@ -68,18 +70,30 @@ public class DbRouterJoinPoint {
         return jp.getTarget().getClass().getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
     }
 
-    public String getAttrValue(String attr, Object[] args) {
-        String filedValue = null;
+    public Object getAttrValue(String attr, Object[] args) {
+        Object filedValue = null;
         for (Object arg : args) {
             try {
-                if (StringUtils.isNotBlank(filedValue)) {
+                if (!Objects.isNull(filedValue)) {
                     break;
                 }
-                filedValue = BeanUtils.getProperty(arg, attr);
+                logger.info("切面方法参数值：{}", arg);
+                if (checkIsNormal(arg)) {
+                    filedValue = arg;
+                } else {
+                    filedValue = BeanUtils.getProperty(arg, attr);
+                }
             } catch (Exception e) {
                 logger.error("获取路由属性值失败 attr：{}", attr, e);
             }
         }
         return filedValue;
+    }
+
+    private Boolean checkIsNormal(Object arg) {
+        if (arg instanceof Long) {
+            return true;
+        }
+        return false;
     }
 }
