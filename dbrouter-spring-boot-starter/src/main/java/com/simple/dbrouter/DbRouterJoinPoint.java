@@ -1,6 +1,7 @@
 package com.simple.dbrouter;
 
 import com.simple.dbrouter.annotation.DBRouter;
+import com.simple.dbrouter.annotation.RouterParam;
 import com.simple.dbrouter.strategy.DbRouterStrategy;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -15,8 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Objects;
 
 /**
@@ -53,7 +56,7 @@ public class DbRouterJoinPoint {
         }
         dbKey = StringUtils.isNotBlank(dbKey) ? dbKey : dbRouterConfig.getRouterKey();
         // 计算路由
-        Object dbKeyAttr = getAttrValue(dbKey, jp.getArgs());
+        String dbKeyAttr = getAttrValue(dbKey, jp.getArgs(), dealParams(jp));
         dbRouterStrategy.doRouter(dbKeyAttr);
         // 返回结果
         try {
@@ -70,19 +73,50 @@ public class DbRouterJoinPoint {
         return jp.getTarget().getClass().getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
     }
 
-    public Object getAttrValue(String attr, Object[] args) {
-        Object filedValue = null;
+    private String dealParams(JoinPoint jp) throws NoSuchMethodException {
+        Signature sig = jp.getSignature();
+        MethodSignature methodSignature = (MethodSignature) sig;
+        Method method = jp.getTarget().getClass().getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
+        Object[] args = jp.getArgs();
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        Parameter[] parameters = method.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            Boolean isRouterParam = containsRouterParam(parameterAnnotations[i]);
+            if (isRouterParam) {
+                return args[i].toString();
+            }
+        }
+        return null;
+    }
+
+    private Boolean containsRouterParam(Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof RouterParam) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getAttrValue(String attr, Object[] args, String paramValue) {
+        if (1 == args.length) {
+            Object arg = args[0];
+            if (checkIsNormal(arg)) {
+                return arg.toString();
+            }
+        }
+
+        if (StringUtils.isNotBlank(paramValue)) {
+            return paramValue;
+        }
+
+        String filedValue = null;
         for (Object arg : args) {
             try {
-                if (!Objects.isNull(filedValue)) {
+                if (StringUtils.isNotBlank(filedValue)) {
                     break;
                 }
-                logger.info("切面方法参数值：{}", arg);
-                if (checkIsNormal(arg)) {
-                    filedValue = arg;
-                } else {
-                    filedValue = BeanUtils.getProperty(arg, attr);
-                }
+                filedValue = BeanUtils.getProperty(arg, attr);
             } catch (Exception e) {
                 logger.error("获取路由属性值失败 attr：{}", attr, e);
             }
@@ -90,8 +124,14 @@ public class DbRouterJoinPoint {
         return filedValue;
     }
 
+    /**
+     * 一个参数的情况下，只支持三种类型
+     *
+     * @param arg
+     * @return
+     */
     private Boolean checkIsNormal(Object arg) {
-        if (arg instanceof Long) {
+        if (arg instanceof Long || arg instanceof String || arg instanceof Integer) {
             return true;
         }
         return false;

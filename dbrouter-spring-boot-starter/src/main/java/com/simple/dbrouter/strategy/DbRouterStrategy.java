@@ -17,7 +17,7 @@ public interface DbRouterStrategy {
      *
      * @param dbKeyAttr 路由字段
      */
-    void doRouter(Object dbKeyAttr);
+    void doRouter(String dbKeyAttr);
 
     /**
      * 手动设置分库路由

@@ -25,7 +25,7 @@ public class DbHashStrategy implements DbRouterStrategy {
     }
 
     @Override
-    public void doRouter(Object dbKeyAttr) {
+    public void doRouter(String dbKeyAttr) {
         // 这里的size需要是2的整数倍
         int size = dbRouterConfig.getDbCount() * dbRouterConfig.getTbCount();
         // 扰动函数参考HashMap（p = tab[i = (n - 1) & hash])）此处操作也是相当于
