@@ -3,6 +3,7 @@ package com.simple.dbrouter;
 import com.simple.dbrouter.annotation.DBRouter;
 import com.simple.dbrouter.annotation.RouterParam;
 import com.simple.dbrouter.strategy.DbRouterStrategy;
+import com.simple.dbrouter.util.ClassUtils;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -14,13 +15,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Objects;
 
 /**
  * 功能描述: 切面
@@ -76,7 +74,15 @@ public class DbRouterJoinPoint {
     private String dealParams(JoinPoint jp) throws NoSuchMethodException {
         Signature sig = jp.getSignature();
         MethodSignature methodSignature = (MethodSignature) sig;
-        Method method = jp.getTarget().getClass().getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
+        Class<?> realClass = null;
+        try {
+            realClass = ClassUtils.getRealClass(jp.getTarget());
+        } catch (Exception e) {
+            logger.error("获取真实代理失败！");
+            e.printStackTrace();
+        }
+        assert realClass != null;
+        Method method = realClass.getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
         Object[] args = jp.getArgs();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Parameter[] parameters = method.getParameters();

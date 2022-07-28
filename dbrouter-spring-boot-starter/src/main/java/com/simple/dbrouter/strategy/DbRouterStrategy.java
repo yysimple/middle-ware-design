@@ -1,7 +1,5 @@
 package com.simple.dbrouter.strategy;
 
-import java.util.Objects;
-
 /**
  * 项目: whitelist-spring-boot-starter
  * <p>
