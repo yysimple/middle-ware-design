@@ -4,6 +4,7 @@ import com.simple.dbrouter.annotation.DBRouter;
 import com.simple.dbrouter.annotation.RouterParam;
 import com.simple.dbrouter.strategy.DbRouterStrategy;
 import com.simple.dbrouter.util.ClassUtils;
+import com.simple.dbrouter.util.ReflectUtils;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -122,7 +123,7 @@ public class DbRouterJoinPoint {
                 if (StringUtils.isNotBlank(filedValue)) {
                     break;
                 }
-                filedValue = BeanUtils.getProperty(arg, attr);
+                filedValue = ReflectUtils.getValueOfGet(arg, attr).toString();
             } catch (Exception e) {
                 logger.error("获取路由属性值失败 attr：{}", attr, e);
             }
