@@ -48,10 +48,7 @@ public class DbRouterJoinPoint {
     public Object doRouter(ProceedingJoinPoint jp, DBRouter dbRouter) throws Throwable {
         // 拿到对应的key，可以是用户id之类的
         String dbKey = dbRouter.key();
-        // 如果key为空，则抛出异常
-        if (StringUtils.isBlank(dbKey)) {
-            throw new RuntimeException("annotation DBRouter key is null！");
-        }
+        // 这里为空的话启用全局配置兜底方案
         dbKey = StringUtils.isNotBlank(dbKey) ? dbKey : dbRouterConfig.getRouterKey();
         // 计算路由
         String dbKeyAttr = getAttrValue(dbKey, jp.getArgs(), dealParams(jp));
