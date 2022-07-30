@@ -56,6 +56,10 @@ public class DbRouterJoinPoint {
         }
         // 计算路由
         String dbKeyAttr = getAttrValue(dbKey, jp.getArgs(), dealParams(jp));
+
+        if (!StringUtils.isNotBlank(dbKeyAttr)) {
+            throw new RuntimeException("DBRouter key mapping value is null！");
+        }
         dbRouterStrategy.doRouter(dbKeyAttr);
         // 返回结果
         try {
